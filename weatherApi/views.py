@@ -27,7 +27,7 @@ def index(request):
         forecast_list = forecast_data["list"]
         selected_forecast = []
 
-        for i in range(0, 6):
+        for i in range(0, 7):
             timestamp = forecast_list[i]["dt"]
             time = get_time(timestamp)
             data_forecast_list = {
