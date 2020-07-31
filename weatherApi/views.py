@@ -20,14 +20,13 @@ def index(request):
     forecast_url = getUrl("forecast", "metric") + post
 
     response = requests.get(get_weather)
-    print(response)
     forecast_response = requests.get(forecast_url)
 
     if forecast_response.status_code == 200:
         forecast_data = forecast_response.json()
         forecast_list = forecast_data["list"]
         selected_forecast = []
-        print(forecast_data)
+
         for i in range(0, 6):
             timestamp = forecast_list[i]["dt"]
             time = get_time(timestamp)
@@ -39,9 +38,8 @@ def index(request):
                 "humidity": (forecast_list[i]["main"]["humidity"]),
                 "temp_min": int(forecast_list[i]["main"]["temp_min"]),
                 "temp_max": int(forecast_list[i]["main"]["temp_max"]),
-                # "Median_Temp":int(( forecast_list[i]["main"]["temp"]) / 7),
             }
-            print(data_forecast_list)
+
             selected_forecast.append(data_forecast_list)
     else:
         selected_forecast = {}
@@ -73,10 +71,8 @@ def index(request):
             "icon": icon,
             "Avg_Temp": int((temp_min + temp_max) / 2)
         }
-        print(data_context)
     else:
         data_context = {}
-        print("No Data")
 
     data_context["form"] = Post()
     data_context["selected_forecast"] = selected_forecast
