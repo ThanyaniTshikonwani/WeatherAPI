@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head class="bg-1">
+    <title>Weather</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
+    <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
+    <style>
+        .bg-background {
+            background-color: #04304A;
+        }
+
+        .bg-card-color {
+            background-color: #053B5D;
+        }
+    </style>
+</head>
+
+<body>
+
+
+</div>
+
+<div class="container-fluid bg-background">
+
+    <br><br>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-content-center">
+            {% if description %}
+                <div class="card text-white bg-card-color mb-3 border border-dark" style="width: 18rem">
+                    <div class="card-header mb-3 text-center">
+                        Current Weather
+                    </div>
+                    <div>
+                        <h5 class="mb-1 text-center">{{ name }}, {{ country }}
+                        </h5>
+                        <h6 class="mb-2 text-center">{{ day }}</h6>
+                        <p class="mb-2 text-center"> Description : {{ description }}<img
+                                src="https://openweathermap.org/img/w/{{ icon }}.png"></p>
+                        <p class="mb-3 text-center">Temperature : {{ temp }}<span> &#8451</span></p>
+                        <p class="mb-3 text-center">Temp Min : {{ temp_min }}<span> &#8451</span></p>
+                        <p class="mb-3 text-center">Temp Max : {{ temp_max }}<span> &#8451</span></p>
+                        <p class="mb-3 text-center">Average Temp: {{ Avg_Temp }}<span> &#8451</span></p>
+                        <p class="mb-3 text-center">Humidity : {{ humidity }} %</p>
+                    </div>
+                </div>
+            {% else %}
+                <p> Weather Data Not Found </p>
+            {% endif %}
+        </div>
+    </div>
+
+    <br><br>
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-content-center ">
+            <form class="form-row " method="post">
+                {% csrf_token %}
+                <div class="field" style="min-font-size-width: 80rem">
+                    <div class="control ">
+                        {{ form.post }}
+                    </div>
+                    {% for error in form.post.errors %}
+                        <p class="help is-danger">{{ error }} </p>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="btn  text-white  bg-card-color ">Get Weather</button>
+            </form>
+        </div>
+    </div>
+    <br><br>
+
+    <div class="container h-100">
+        <div class="row h-100 justify-content-center align-content-center">
+            {% if selected_forecast %}
+                {% for data in selected_forecast %}
+
+                    <div class="card text-white bg-card-color mb-3 border border-dark mx-auto" style="width: 18rem">
+                        <div class="card-header">
+                            <h6 class="mb-2 text-center">{{ data.time }}</h6>
+                        </div>
+                        <div>
+
+                            <p class="mb-2 text-center"> Description : {{ data.weather }} <img
+                                    src="https://openweathermap.org/img/w/{{ icon }}.png"></p>
+                            <p class="mb-3 text-center"> Temperature : {{ data.temp }}<span> &#8451</span></p>
+                            <p class="mb-3 text-center"> Temp Min : {{ data.temp_min }}<span> &#8451</span></p>
+                            <p class="mb-3 text-center"> Temp Max : {{ data.temp_max }}<span> &#8451</span></p>
+                            <p class="mb-3 text-center"> Humidity : {{ data.humidity }} %</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p> Weather Forecast Data Not Found </p>
+            {% endif %}
+        </div>
+</body>
+</html>
