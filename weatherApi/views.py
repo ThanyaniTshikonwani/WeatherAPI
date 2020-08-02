@@ -21,18 +21,28 @@ def index(request):
 
     response = requests.get(get_weather)
 
-    getCoord = response.json()
-    lon = getCoord["coord"]["lon"]
-    lat = getCoord["coord"]["lat"]
+    def get_weather_by_coords():
+        getCoord = response.json()
+
+        lon = getCoord["coord"]["lon"]
+        lat = getCoord["coord"]["lat"]
 
 
-    get_daily_weather = getOneCallUrl(str(lat), str(lon))
-    get_daily_weather_response = requests.get(get_daily_weather)
+        get_daily_weather = getOneCallUrl(str(lat), str(lon))
+        get_daily_weather_response = requests.get(get_daily_weather)
 
-    if get_daily_weather_response.status_code == 200:
-        get_daily_weather_response_data = get_daily_weather_response.json()
+
+
+
+        return get_daily_weather_response
+
+    if 'coord' in get_weather_by_coords():
+        print("hi")
+
+
+    if get_weather_by_coords().status_code == 200:
+        get_daily_weather_response_data = get_weather_by_coords().json()
         get_daily_weather_response_list = get_daily_weather_response_data["daily"]
-
 
         daily_forecast = []
         for i in range(0, 7):
