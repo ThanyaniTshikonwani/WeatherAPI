@@ -1,7 +1,6 @@
-from pprint import pprint
-
 import requests
 from django.shortcuts import render
+from django.http import JsonResponse
 
 from .config.remote import getUrl, getOneCallUrl
 from .config.timestamp import get_Date
@@ -32,8 +31,6 @@ def index(request):
 
         return get_daily_weather_response
 
-    if 'coord' in get_weather_by_coords():
-        print("hi")
 
     if get_weather_by_coords().status_code == 200:
         get_daily_weather_response_data = get_weather_by_coords().json()
@@ -70,6 +67,8 @@ def index(request):
     else:
         daily_forecast = {}
 
+
+
     if response.status_code == 200:
 
         data = response.json()
@@ -97,6 +96,18 @@ def index(request):
     else:
         data_context = {}
 
+    def bar_chart(request):
+        chart_data = {
+            "Low": day_temp_min,
+            "High": day_temp_max,
+            "Temp_median": temp_median,
+        }
+        return JsonResponse(chart_data)
+
     data_context["form"] = Post()
     data_context["daily_forecast"] = daily_forecast
     return render(request, 'views/index.html', data_context)
+
+
+def bar_chart():
+    return None
