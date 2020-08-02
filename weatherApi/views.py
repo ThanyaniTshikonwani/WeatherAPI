@@ -27,18 +27,13 @@ def index(request):
         lon = getCoord["coord"]["lon"]
         lat = getCoord["coord"]["lat"]
 
-
         get_daily_weather = getOneCallUrl(str(lat), str(lon))
         get_daily_weather_response = requests.get(get_daily_weather)
-
-
-
 
         return get_daily_weather_response
 
     if 'coord' in get_weather_by_coords():
         print("hi")
-
 
     if get_weather_by_coords().status_code == 200:
         get_daily_weather_response_data = get_weather_by_coords().json()
