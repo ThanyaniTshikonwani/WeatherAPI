@@ -7,7 +7,8 @@ def get_time(timestamp):
     return time
 
 
-def get_Day(timestamp):
+
+def get_Date(timestamp):
     date_object = datetime.fromtimestamp(timestamp)
-    day = date_object.strftime("%A")
-    return day
+    date = date_object.strftime("%A  %d/%m/%Y")
+    return date

@@ -1,8 +1,10 @@
+from pprint import pprint
+
 import requests
 from django.shortcuts import render
 
-from .config.remote import getUrl
-from .config.timestamp import get_time, get_Day
+from .config.remote import getUrl, getOneCallUrl
+from .config.timestamp import get_Date
 from .forms import Post
 
 
@@ -14,66 +16,82 @@ def index(request):
 
         if form.is_valid():
             post = form.cleaned_data.get('post')
-    else:
-        form = Post()
+
     get_weather = getUrl("weather", "metric") + post
-    forecast_url = getUrl("forecast", "metric") + post
 
     response = requests.get(get_weather)
-    forecast_response = requests.get(forecast_url)
 
-    if forecast_response.status_code == 200:
-        forecast_data = forecast_response.json()
-        forecast_list = forecast_data["list"]
-        selected_forecast = []
+    getCoord = response.json()
+    lon = getCoord["coord"]["lon"]
+    lat = getCoord["coord"]["lat"]
 
+
+    get_daily_weather = getOneCallUrl(str(lat), str(lon))
+    get_daily_weather_response = requests.get(get_daily_weather)
+
+    if get_daily_weather_response.status_code == 200:
+        get_daily_weather_response_data = get_daily_weather_response.json()
+        get_daily_weather_response_list = get_daily_weather_response_data["daily"]
+
+
+        daily_forecast = []
         for i in range(0, 7):
-            timestamp = forecast_list[i]["dt"]
-            time = get_time(timestamp)
-            data_forecast_list = {
-                "icon": forecast_list[i]["weather"][0]["icon"],
-                "time": time,
-                "temp": int(forecast_list[i]["main"]["temp"]),
-                "weather": forecast_list[i]["weather"][0]["main"],
-                "humidity": (forecast_list[i]["main"]["humidity"]),
-                "temp_min": int(forecast_list[i]["main"]["temp_min"]),
-                "temp_max": int(forecast_list[i]["main"]["temp_max"]),
-            }
+            timestamp = get_daily_weather_response_list[i]["dt"]
 
-            selected_forecast.append(data_forecast_list)
+            date = get_Date(timestamp)
+
+            day_temp = int(get_daily_weather_response_list[i]["temp"]["day"])
+            day_eve = int(get_daily_weather_response_list[i]["temp"]["eve"])
+            day_morn = int(get_daily_weather_response_list[i]["temp"]["morn"])
+            day_night = int(get_daily_weather_response_list[i]["temp"]["night"])
+            temp_median = int((day_temp + day_eve + day_morn + day_night) / 4)
+
+            day_temp_min = int(get_daily_weather_response_list[i]["temp"]["min"])
+            day_temp_max = int(get_daily_weather_response_list[i]["temp"]["max"])
+            avg_temp = int((day_temp_min + day_temp_max) / 2)
+
+            daily_data = {
+                "Date": date,
+                "Low": day_temp_min,
+                "High": day_temp_max,
+                "humidity": get_daily_weather_response_list[i]["humidity"],
+                "Temp_median": temp_median,
+                "Avg_temp": avg_temp,
+                "description": get_daily_weather_response_list[i]["weather"][0]["description"],
+                "icon": get_daily_weather_response_list[i]["weather"][0]["icon"],
+            }
+            daily_forecast.append(daily_data)
+            print(daily_data)
     else:
-        selected_forecast = {}
+        daily_forecast = {}
 
     if response.status_code == 200:
 
         data = response.json()
+
         timestamp = data["dt"]
-        day = get_Day(timestamp)
+        date = get_Date(timestamp)
         name = data["name"]
-        day = day
+        date = date
         temp = data["main"]["temp"]
         country = data["sys"]["country"]
         description = data["weather"][0]["description"]
-        temp_min = data["main"]["temp_min"]
-        humidity = data["main"]["humidity"]
-        temp_max = data["main"]["temp_max"]
         icon = data["weather"][0]["icon"]
 
         data_context = {
+
             "name": name,
-            "day": day,
+            "date": date,
             "temp": int(temp),
             "country": country,
             "description": description,
-            "temp_min": int(temp_min),
-            "humidity": humidity,
-            "temp_max": int(temp_max),
             "icon": icon,
-            "Avg_Temp": int((temp_min + temp_max) / 2)
+
         }
+
     else:
         data_context = {}
 
     data_context["form"] = Post()
-    data_context["selected_forecast"] = selected_forecast
+    data_context["daily_forecast"] = daily_forecast
     return render(request, 'views/index.html', data_context)

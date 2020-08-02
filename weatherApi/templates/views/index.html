@@ -9,18 +9,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>
-    <script type="text/javascript"
-            src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>
+    <script src="https://code.highcharts.com/highcharts.src.js"></script>
+
     <style>
         .bg-background {
             background-color: #04304A;
@@ -29,6 +19,8 @@
         .bg-card-color {
             background-color: #053B5D;
         }
+
+
     </style>
 </head>
 
@@ -56,14 +48,10 @@
                 <div>
                     <h5 class="mb-1 text-center">{{ name }}, {{ country }}
                     </h5>
-                    <h6 class="mb-2 text-center">{{ day }}</h6>
+                    <h6 class="mb-2 text-center">{{ date }}</h6>
+                    <h1 class="mb-3 text-center">{{ temp }}<span> &#8451</span></h1>
                     <p class="mb-2 text-center"> Description : {{ description }}<img
                             src="https://openweathermap.org/img/w/{{ icon }}.png"></p>
-                    <p class="mb-3 text-center">Temperature : {{ temp }}<span> &#8451</span></p>
-                    <p class="mb-3 text-center">Temp Min : {{ temp_min }}<span> &#8451</span></p>
-                    <p class="mb-3 text-center">Temp Max : {{ temp_max }}<span> &#8451</span></p>
-                    <p class="mb-3 text-center">Average Temp: {{ Avg_Temp }}<span> &#8451</span></p>
-                    <p class="mb-3 text-center">Humidity : {{ humidity }} %</p>
                 </div>
             </div>
             {% else %}
@@ -94,32 +82,33 @@
     <br><br>
 
     <div class="container h-100">
-            <div class="row h-100 justify-content-center align-content-center">
-                <h4 class="text-white" style="padding: 30px">3 Hour Interval Weather Forecast</h4>
-            </div>
+        <div class="row h-100 justify-content-center align-content-center">
+            <h4 class="text-white" style="padding: 30px">Daily Weather Forecast</h4>
         </div>
+    </div>
 
     <div class="container h-100">
         <div class="row h-100 justify-content-center align-content-center">
-            {% if selected_forecast %}
-            {% for data in selected_forecast %}
+            {% if daily_forecast %}
+            {% for data in daily_forecast %}
 
             <div class="card text-white bg-card-color mb-3 border border-dark mx-auto" style="width: 18rem">
                 <div class="card-header">
-                    <h6 class="mb-2 text-center">{{ data.time }}</h6>
+                    <h6 class="mb-2 text-center">{{ data.Date }}</h6>
                 </div>
                 <div>
-                    <p class="mb-2 text-center"> Description : {{ data.weather }} <img
+                    <p class="mb-2 text-center"> Description : {{ data.description }} <img
                             src="https://openweathermap.org/img/w/{{ icon }}.png"></p>
-                    <p class="mb-3 text-center"> Temperature : {{ data.temp }}<span> &#8451</span></p>
-                    <p class="mb-3 text-center"> Temp Min : {{ data.temp_min }}<span> &#8451</span></p>
-                    <p class="mb-3 text-center"> Temp Max : {{ data.temp_max }}<span> &#8451</span></p>
+                    <p class="mb-3 text-center"> Temp Median  : {{ data.Temp_median }}<span> &#8451</span></p>
+                    <p class="mb-3 text-center"> Low : {{ data.Low }}<span> &#8451</span></p>
+                    <p class="mb-3 text-center"> High : {{ data.High }}<span> &#8451</span></p>
                     <p class="mb-3 text-center"> Humidity : {{ data.humidity }} %</p>
                 </div>
             </div>
             {% endfor %}
             {% else %}
             <h1 class="text-white"> Weather Forecast Data Not Found </h1>
+
             {% endif %}
         </div>
 
@@ -128,5 +117,36 @@
                 <h3 class="text-white" style="padding: 30px">Weather App By Thanyani Tshikonwani</h3>
             </div>
         </div>
+
+        <script>
+  Highcharts.chart('container', {
+      chart: {
+          type: 'column'
+      },
+      title: {
+          text: 'Titanic Survivors by Ticket Class'
+      },
+      xAxis: {
+          categories: [
+            {% for entry in dataset %}'{{ entry.ticket_class }} Class'{% if not forloop.last %}, {% endif %}{% endfor %}
+          ]
+      },
+      series: [{
+          name: 'Survived',
+          data: [
+            {% for entry in dataset %}{{ entry.survived_count }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          ],
+          color: 'green'
+      }, {
+          name: 'Not survived',
+          data: [
+            {% for entry in dataset %}{{ entry.not_survived_count }}{% if not forloop.last %}, {% endif %}{% endfor %}
+          ],
+          color: 'red'
+      }]
+  });
+
+        </script>
+
 </body>
 </html>
