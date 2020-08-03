@@ -2,7 +2,7 @@ import requests
 from django.shortcuts import render
 
 from .config.remote import getUrl, getOneCallUrl
-from .config.timestamp import get_Date
+from .config.timestamp import get_Date,get_time,_time
 from .forms import Post
 
 
@@ -81,7 +81,9 @@ def index(request):
 
         timestamp = data["dt"]
         date = get_Date(timestamp)
+        time = get_time(timestamp)
         name = data["name"]
+        time = time
         date = date
         temp = data["main"]["temp"]
         country = data["sys"]["country"]
@@ -91,6 +93,7 @@ def index(request):
         data_context = {
 
             "name": name,
+            "time": time,
             "date": date,
             "temp": int(temp),
             "country": country,
@@ -102,7 +105,7 @@ def index(request):
 
     else:
         data_context = {}
-
+    print(_time())
     data_context["form"] = Post()
     data_context["daily_forecast"] = daily_forecast
     return render(request, 'views/index.html', data_context)

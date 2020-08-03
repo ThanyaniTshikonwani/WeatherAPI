@@ -49,6 +49,7 @@
                         <h5 class="mb-1 text-center">{{ name }}, {{ country }}
                         </h5>
                         <h6 class="mb-2 text-center">{{ date }}</h6>
+                        <h6 class="mb-2 text-center">{{ time }}</h6>
                         <h1 class="mb-3 text-center">{{ temp }}<span> &#8451</span></h1>
                         <p class="mb-2 text-center"> Description : {{ description }}<img
                                 src="https://openweathermap.org/img/w/{{ icon }}.png"></p>
@@ -112,11 +113,7 @@
             {% endif %}
         </div>
 
-        <div class="container h-100">
-            <div class="row h-100 justify-content-center align-content-center">
-                <h3 class="text-white" style="padding: 30px">Weather App By Thanyani Tshikonwani</h3>
-            </div>
-        </div>
+
         <div style="margin-top:30px;margin-bottom: 30px">
             <div style="display: flex;justify-content: center;align-items: center;">
                 <canvas id="genderChart" width="1000"></canvas>
@@ -133,28 +130,35 @@
                     new Chart(document.getElementById("genderChart"), {
                         type: 'bar',
                         data: {
-                            labels: daily_data.date,
+                            labels: daily_data.Days,
                             datasets: [
                                 {
                                     label: "Day Low Temp",
                                     backgroundColor: "rgba(62, 149, 205, 0.5)",
                                     borderColor: "rgba(62, 149, 205, 1)",
                                     pointBackgroundColor: "rgba(62, 149, 205, 1)",
-                                    data: daily_data.day_temp_min,
+                                    data: daily_data.LowTemp,
+                                },
+                                {
+                                    label: "Day Average Temp",
+                                    backgroundColor: "rgba(62, 205, 149, 0.5)",
+                                    borderColor: "rgba(62, 205, 149, 1)",
+                                    pointBackgroundColor: "rgba(62,205,149, 1)",
+                                    data: daily_data.AvgTemp,
                                 },
                                 {
                                     label: "Day High Temp",
                                     backgroundColor: "rgba(255, 10, 77, 0.5)",
                                     borderColor: "rgba(255, 10, 77, 1)",
                                     pointBackgroundColor: "rgba(255, 10, 77, 1)",
-                                    data: day_temp_min.day_temp_min,
+                                    data: daily_data.HighTemp,
                                 },
                             ]
                         },
                         options: {
                             legend: {
                                 labels: {
-                                    fontSize: 18
+                                    fontSize: 20
                                 }
                             },
                             title: {
@@ -194,5 +198,12 @@
                 }
             });
         </script>
+        <footer>
+            <div class="container h-100">
+            <div class="row h-100 justify-content-center align-content-center">
+                <h3 class="text-white" style="padding: 30px"><span>&#169;</span>Weather App By Thanyani Tshikonwani</h3>
+            </div>
+        </div>
+        </footer>
 </body>
 </html>

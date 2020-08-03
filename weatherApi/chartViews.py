@@ -1,9 +1,10 @@
 import requests
+from django.http import JsonResponse
 
 from django.shortcuts import render
 
 from .config.remote import getUrl, getOneCallUrl
-from .config.timestamp import get_Date
+from .config.timestamp import get_Day
 from .forms import Post
 
 
@@ -23,10 +24,12 @@ def chart(request):
     response = requests.get(post())
 
     def get_weatherCoords():
-        getCoord = response.json()
-
-        lon = getCoord["coord"]["lon"]
-        lat = getCoord["coord"]["lat"]
+        try:
+            getCoord = response.json()
+            lon = getCoord["coord"]["lon"]
+            lat = getCoord["coord"]["lat"]
+        except Exception as  e:
+            return render(request, 'views/index.html')
 
         get_daily_weather = getOneCallUrl(str(lat), str(lon))
         get_daily_weather_response = requests.get(get_daily_weather)
@@ -34,39 +37,39 @@ def chart(request):
         return get_daily_weather_response
 
     if get_weatherCoords().status_code == 200:
-        get_daily_weather_response_data = get_weatherCoords().json()
+        try:
+            get_daily_weather_response_data = get_weatherCoords().json()
+        except Exception as e:
+            return render(request, 'views/index.html')
         get_daily_weather_response_list = get_daily_weather_response_data["daily"]
 
-        daily_forecast = []
+        data_temp_min = []
+        data_temp_max = []
+        data_days = []
+        data_temp_avg = []
+
         for i in range(0, 7):
             timestamp = get_daily_weather_response_list[i]["dt"]
 
-            date = get_Date(timestamp)
-
-            day_temp = int(get_daily_weather_response_list[i]["temp"]["day"])
-            day_eve = int(get_daily_weather_response_list[i]["temp"]["eve"])
-            day_morn = int(get_daily_weather_response_list[i]["temp"]["morn"])
-            day_night = int(get_daily_weather_response_list[i]["temp"]["night"])
-            temp_median = int((day_temp + day_eve + day_morn + day_night) / 4)
-
-            day_temp_min = (get_daily_weather_response_list[i]["temp"]["min"])
+            day = get_Day(timestamp)
+            day_temp_min = int(get_daily_weather_response_list[i]["temp"]["min"])
             day_temp_max = int(get_daily_weather_response_list[i]["temp"]["max"])
-            avg_temp = int((day_temp_min + day_temp_max) / 2)
-
-            daily_data = [
-                # "Date": date,
-                day_temp_min
-                # "High": day_temp_max,
-                # "humidity": get_daily_weather_response_list[i]["humidity"],
-                # "Temp_median": temp_median,
-                # "Avg_temp": avg_temp,
-                # "description": get_daily_weather_response_list[i]["weather"][0]["description"],
-                # "icon": get_daily_weather_response_list[i]["weather"][0]["icon"],
-            ]
-            daily_forecast.append(daily_data)
+            day_temp_avg = int((day_temp_min + day_temp_max) / 2)
 
 
+            data_temp_min.append((day_temp_min))
+            data_temp_max.append(day_temp_max)
+            data_days.append(day)
+            data_temp_avg.append(day_temp_avg)
 
+        daily_data = {
+            "LowTemp": data_temp_min,
+            "HighTemp": data_temp_max,
+            "AvgTemp": data_temp_avg,
+            "Days": data_days,
+        }
+        print(daily_data)
+        return JsonResponse(daily_data)
     else:
         daily_forecast = {}
 
