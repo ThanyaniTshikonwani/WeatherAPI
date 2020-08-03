@@ -1,6 +1,5 @@
 import requests
 from django.shortcuts import render
-from django.http import JsonResponse
 
 from .config.remote import getUrl, getOneCallUrl
 from .config.timestamp import get_Date
@@ -8,32 +7,39 @@ from .forms import Post
 
 
 def index(request):
-    post = "Johannesburg"
+    def post():
+        post = "Johannesburg"
 
-    if request.method == "POST":
-        form = Post(request.POST)
+        if request.method == "POST":
+            form = Post(request.POST)
 
-        if form.is_valid():
-            post = form.cleaned_data.get('post')
+            if form.is_valid():
+                post = form.cleaned_data.get('post')
 
-    get_weather = getUrl("weather", "metric") + post
+        get_weather = getUrl("weather", "metric") + post
 
-    response = requests.get(get_weather)
+        return get_weather
+
+    response = requests.get(post())
 
     def get_weather_by_coords():
-        getCoord = response.json()
-
-        lon = getCoord["coord"]["lon"]
-        lat = getCoord["coord"]["lat"]
+        try:
+            getCoord = response.json()
+            lon = getCoord["coord"]["lon"]
+            lat = getCoord["coord"]["lat"]
+        except Exception as  e:
+            return render(request, 'views/index.html')
 
         get_daily_weather = getOneCallUrl(str(lat), str(lon))
         get_daily_weather_response = requests.get(get_daily_weather)
 
         return get_daily_weather_response
 
-
     if get_weather_by_coords().status_code == 200:
-        get_daily_weather_response_data = get_weather_by_coords().json()
+        try:
+            get_daily_weather_response_data = get_weather_by_coords().json()
+        except Exception as e:
+            return render(request, 'views/index.html')
         get_daily_weather_response_list = get_daily_weather_response_data["daily"]
 
         daily_forecast = []
@@ -63,11 +69,11 @@ def index(request):
                 "icon": get_daily_weather_response_list[i]["weather"][0]["icon"],
             }
             daily_forecast.append(daily_data)
-            print(daily_data)
+
+
+
     else:
         daily_forecast = {}
-
-
 
     if response.status_code == 200:
 
@@ -93,21 +99,10 @@ def index(request):
 
         }
 
+
     else:
         data_context = {}
-
-    def bar_chart(request):
-        chart_data = {
-            "Low": day_temp_min,
-            "High": day_temp_max,
-            "Temp_median": temp_median,
-        }
-        return JsonResponse(chart_data)
 
     data_context["form"] = Post()
     data_context["daily_forecast"] = daily_forecast
     return render(request, 'views/index.html', data_context)
-
-
-def bar_chart():
-    return None

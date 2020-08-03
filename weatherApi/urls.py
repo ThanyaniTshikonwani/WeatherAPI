@@ -1,8 +1,8 @@
-from django.urls import  path
-from . import views
+from django.urls import path, include
+from .views import index
+from .chartViews import chart
 
 urlpatterns = [
-    path("", views.index),
-    # path("datachart",views.bar_chart())
+    path("", index),
+    path("data/", chart),
 ]
-

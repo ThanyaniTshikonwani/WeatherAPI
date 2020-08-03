@@ -10,6 +10,7 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js"></script>
     <script src="https://cdn.zingchart.com/zingchart.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
     <style>
         .bg-background {
@@ -116,58 +117,82 @@
                 <h3 class="text-white" style="padding: 30px">Weather App By Thanyani Tshikonwani</h3>
             </div>
         </div>
-        <div class="container h-100" style="">
-            <div class="row h-100 justify-content-center align-content-center">
-                {% if daily_forecast %}
-                    {% for data in daily_forecast %}
-                        <canvas id="chart" width="100" height="100"></canvas>
-                        <script>
-                            const arr = {{ data.Low|safe }}
-                            const ctx = document.getElementById('chart').getContext('2d');
-                            const myChart = new Chart(ctx, {
-                                type: 'bar',
-                                data: {
-                                    labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange', 'White'],
-                                    datasets: [{
-                                        label: 'Weather',
-                                        data: [arr],
-
-                                        backgroundColor: [
-                                            'rgba(255, 99, 132, 0.5)',
-                                            'rgba(54, 162, 235, 0.5)',
-                                            'rgba(255, 206, 86, 0.5)',
-                                            'rgba(75, 192, 192, 0.5)',
-                                            'rgba(153, 102, 255, 0.5)',
-                                            'rgba(255, 159, 64, 0.5)'
-                                        ],
-                                        borderColor: [
-                                            'rgba(255, 99, 132, 1)',
-                                            'rgba(54, 162, 235, 1)',
-                                            'rgba(255, 206, 86, 1)',
-                                            'rgba(75, 192, 192, 1)',
-                                            'rgba(153, 102, 255, 1)',
-                                            'rgba(255, 159, 64, 1)'
-                                        ],
-                                        borderWidth: 0.5
-                                    }]
-                                },
-                                options: {
-                                    scales: {
-                                        yAxes: [{
-                                            ticks: {
-                                                beginAtZero: true
-                                            }
-                                        }]
-                                    }
-                                }
-                            });
-                        </script>
-                    {% endfor %}
-                {% else %}
-                    <h1 class="text-white"> Weather Forecast Data Not Found </h1>
-                    {{ daily_forecast.error }}
-                {% endif %}
+        <div style="margin-top:30px;margin-bottom: 30px">
+            <div style="display: flex;justify-content: center;align-items: center;">
+                <canvas id="genderChart" width="1000"></canvas>
             </div>
         </div>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.bundle.min.js"></script>
+        <script>
+            $.ajax({
+                method: 'GET',
+                url: '/data/',
+                success: function (daily_data) {
+                    console.log(daily_data);
+                    new Chart(document.getElementById("genderChart"), {
+                        type: 'bar',
+                        data: {
+                            labels: daily_data.date,
+                            datasets: [
+                                {
+                                    label: "Day Low Temp",
+                                    backgroundColor: "rgba(62, 149, 205, 0.5)",
+                                    borderColor: "rgba(62, 149, 205, 1)",
+                                    pointBackgroundColor: "rgba(62, 149, 205, 1)",
+                                    data: daily_data.day_temp_min,
+                                },
+                                {
+                                    label: "Day High Temp",
+                                    backgroundColor: "rgba(255, 10, 77, 0.5)",
+                                    borderColor: "rgba(255, 10, 77, 1)",
+                                    pointBackgroundColor: "rgba(255, 10, 77, 1)",
+                                    data: day_temp_min.day_temp_min,
+                                },
+                            ]
+                        },
+                        options: {
+                            legend: {
+                                labels: {
+                                    fontSize: 18
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: "Daily Weather Focus Statistics",
+                                fontSize: 22.0
+                            },
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        fontSize: 15.0,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Temparature',
+                                        fontSize: 20.0,
+                                    }
+                                }],
+                                xAxes: [{
+                                    ticks: {
+                                        fontSize: 15.0,
+                                    },
+                                    scaleLabel: {
+                                        display: true,
+                                        labelString: 'Days',
+                                        fontSize: 20.0,
+                                    }
+                                }]
+                            },
+                            responsive: false,
+                        }
+                    });
+                },
+                error: function (day_temp_min) {
+                    console.log('Error!');
+                }
+            });
+        </script>
 </body>
 </html>
