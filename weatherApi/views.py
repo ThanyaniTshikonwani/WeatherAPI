@@ -1,8 +1,12 @@
+from datetime import datetime
+from tzwhere import tzwhere
+from pytz import timezone
+
 import requests
 from django.shortcuts import render
 
 from .config.remote import getUrl, getOneCallUrl
-from .config.timestamp import get_Date,get_time,_time
+from .config.timestamp import get_Date, get_time
 from .forms import Post
 
 
@@ -34,6 +38,18 @@ def index(request):
         get_daily_weather_response = requests.get(get_daily_weather)
 
         return get_daily_weather_response
+
+    tz = tzwhere.tzwhere()
+
+    getCoord = response.json()
+    lon = getCoord["coord"]["lon"]
+    lat = getCoord["coord"]["lat"]
+
+    timeZoneStr = tz.tzNameAt(lat, lon)
+    timeZoneObj = timezone(timeZoneStr)
+
+    now_time = datetime.now(timeZoneObj)
+    currentTime = now_time.strftime("%H : %M %p")
 
     if get_weather_by_coords().status_code == 200:
         try:
@@ -78,12 +94,13 @@ def index(request):
     if response.status_code == 200:
 
         data = response.json()
-
+        print(data)
         timestamp = data["dt"]
+
         date = get_Date(timestamp)
         time = get_time(timestamp)
         name = data["name"]
-        time = time
+        time = currentTime
         date = date
         temp = data["main"]["temp"]
         country = data["sys"]["country"]
@@ -105,7 +122,7 @@ def index(request):
 
     else:
         data_context = {}
-    print(_time())
+
     data_context["form"] = Post()
     data_context["daily_forecast"] = daily_forecast
     return render(request, 'views/index.html', data_context)
